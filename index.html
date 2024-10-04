@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Character Counter | Made by Bisam</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --primary-hover: #4f46e5;
+            --secondary-color: #1e293b;
+            --background-color: #f8fafc;
+            --surface-color: #ffffff;
+            --text-color: #334155;
+            --success-color: #22c55e;
+            --error-color: #ef4444;
+            --border-color: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            opacity: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--background-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border-color);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .container {
+            flex: 1;
+            max-width: 800px;
+            width: 90%;
+            margin: 0 auto;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .app-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-weight: 700;
+            font-size: 2.5rem;
+            color: var(--secondary-color);
+            margin-bottom: 12px;
+        }
+
+        .subtitle {
+            color: #64748b;
+            font-size: 1.1rem;
+        }
+
+        .counter-wrapper {
+            background: var(--surface-color);
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05),
+                        0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .textarea-wrapper {
+            position: relative;
+            margin-bottom: 24px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 200px;
+            border: 2px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            transition: all 0.3s ease;
+            color: var(--text-color);
+            background: #f8fafc;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+            background: white;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .counter-info {
+            font-size: 0.95rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: #f1f5f9;
+            border-radius: 12px;
+        }
+
+        .counter-info span {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-secondary {
+            background-color: #f1f5f9;
+            color: var(--text-color);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-secondary:hover {
+            background-color: #e2e8f0;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 500;
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .toast.success {
+            background-color: var(--success-color);
+        }
+
+        .toast.error {
+            background-color: var(--error-color);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 24px;
+            background: var(--surface-color);
+            border-top: 1px solid var(--border-color);
+            margin-top: auto;
+        }
+
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .credit {
+            font-weight: 500;
+            color: var(--secondary-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .credit span {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 24px;
+        }
+
+        .footer-links a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary-color);
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 20px 16px;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .counter-wrapper {
+                padding: 24px;
+                border-radius: 20px;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            .button-group {
+                width: 100%;
+            }
+
+            .btn {
+                flex: 1;
+                justify-content: center;
+            }
+
+            .counter-info {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .footer-links {
+                gap: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="loader">
+        <div class="spinner"></div>
+    </div>
+
+    <div class="container">
+        <div class="app-header">
+            <h1>Character Counter</h1>
+            <p class="subtitle">Count and manage your text with style</p>
+        </div>
+        
+        <div class="counter-wrapper">
+            <div class="textarea-wrapper">
+                <textarea id="textArea" placeholder="Start typing here..."></textarea>
+            </div>
+            <div class="controls">
+                <div class="counter-info">
+                    Characters: <span id="charCount">0</span>
+                </div>
+                <div class="button-group">
+                    <button class="btn btn-secondary" id="clearBtn">Clear</button>
+                    <button class="btn btn-primary" id="copyBtn">Copy text</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="credit">
+                Made with ❤️ by <span>Bisam</span>
+            </div>
+            <div class="footer-links">
+                <a href="#" class="year">© 2024</a>
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Use</a>
+            </div>
+        </div>
+    </footer>
+    
+    <div id="toast" class="toast"></div>
+
+    <script>
+        window.addEventListener('load', () => {
+            gsap.to('#loader', {
+                opacity: 0,
+                duration: 0.5,
+                onComplete: () => {
+                    document.getElementById('loader').style.display = 'none';
+                    gsap.to('body', {
+                        opacity: 1,
+                        duration: 0.5
+                    });
+                }
+            });
+
+            gsap.from('.footer', {
+                y: 20,
+                opacity: 0,
+                duration: 0.8,
+                delay: 0.5,
+                ease: 'power2.out'
+            });
+
+            gsap.from('.app-header', {
+                y: -30,
+                opacity: 0,
+                duration: 0.8,
+                ease: 'power2.out'
+            });
+
+            gsap.from('.counter-wrapper', {
+                y: 30,
+                opacity: 0,
+                duration: 0.8,
+                delay: 0.3,
+                ease: 'power2.out'
+            });
+        });
+
+        const textArea = document.getElementById('textArea');
+        const charCount = document.getElementById('charCount');
+        const clearBtn = document.getElementById('clearBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const toast = document.getElementById('toast');
+
+        function updateCounter() {
+            const count = textArea.value.length;
+            charCount.textContent = count;
+            
+            gsap.to([clearBtn, copyBtn], {
+                opacity: count > 0 ? 1 : 0.5,
+                duration: 0.3
+            });
+        }
+
+        function showToast(message, type = 'success') {
+            toast.textContent = message;
+            toast.className = `toast ${type}`;
+            
+            gsap.to(toast, {
+                opacity: 1,
+                y: -20,
+                duration: 0.3,
+                onComplete: () => {
+                    setTimeout(() => {
+                        gsap.to(toast, {
+                            opacity: 0,
+                            y: 0,
+                            duration: 0.3
+                        });
+                    }, 2000);
+                }
+            });
+        }
+
+        textArea.addEventListener('input', updateCounter);
+
+        clearBtn.addEventListener('click', () => {
+            gsap.to(textArea, {
+                scale: 0.98,
+                duration: 0.1,
+                yoyo: true,
+                repeat: 1
+            });
+            
+            textArea.value = '';
+            updateCounter();
+            showToast('Text cleared successfully');
+        });
+
+        copyBtn.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(textArea.value);
+                
+                gsap.to(copyBtn, {
+                    scale: 0.95,
+                    duration: 0.1,
+                    yoyo: true,
+                    repeat: 1
+                });
+                
+                showToast('Text copied to clipboard!');
+            } catch (err) {
+                showToast('Failed to copy text', 'error');
+            }
+        });
+
+        updateCounter();
+        clearBtn.style.opacity = '0.5';
+        copyBtn.style.opacity = '0.5';
+    </script>
+</body>
+</html>
